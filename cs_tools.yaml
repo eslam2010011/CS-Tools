@@ -1,0 +1,175 @@
+version: 0.1
+tools:
+  - category: Subdomain
+    tools:
+      - name: subfinder
+        author: projectdiscovery
+        url: https://github.com/projectdiscovery/subfinder
+        description: 'Subfinder is a subdomain discovery tool that discovers valid subdomains
+          for websites. Designed as a passive framework to be useful for bug bounties and
+          safe for penetration testing. '
+        install: go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+        command: subfinder -d {domain}
+      - name: amass
+        author: trickest
+        url: https://github.com/owasp-amass/amass
+        description: 'In-depth Attack Surface Mapping and Asset Discovery	'
+        install: go install -v github.com/owasp-amass/amass/v3/...@master
+        command: amass enum -d {domain}
+        help: amass -h
+      - name: dsieve
+        author: trickest
+        url: https://github.com/trickest/dsieve
+        description: 'Filter and enrich a list of subdomains by level'
+        install: go install github.com/trickest/dsieve@latest
+        command: dsieve -h
+      - name: csprecon
+        install: go install github.com/edoardottt/csprecon/cmd/csprecon@latest
+        command: csprecon -u {domain}
+      - name: Sublist3r
+        install:
+          - git clone https://github.com/aboul3la/Sublist3r.git {path}/Sublist3r
+          - cd {path}/Sublist3r &&  pip install -r requirements.txt
+        command: cd {path}/Sublist3r && python sublist3r.py -d {domain}
+  - category: Wordlist
+    tools:
+      - name: SecLists
+        install: git clone https://github.com/danielmiessler/SecLists.git {path}/SecLists
+        command: ""
+      - name: nuclei-templates
+        install: git clone https://github.com/projectdiscovery/nuclei-templates.git {path}/nuclei-templates
+        command: ""
+      - name: fuzzing-templates
+        install: git clone https://github.com/projectdiscovery/fuzzing-templates.git {path}/fuzzing-templates
+        command: ""
+
+  - category: Fuzz
+    tools:
+      - name: ffuf
+        install: go install github.com/ffuf/ffuf/v2@latest
+        command: ffuf -w {path}/SecLists/Discovery/Web-Content/apache.txt -u {domain} -fs 4242
+
+  - category: Scanner
+    tools:
+      - name: nuclei
+        install: go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+        command: nuclei -u {domain}
+      - name: osmedeus
+        install: go install -v github.com/j3ssie/osmedeus@latest
+        command: osmedeus scan -t {domain}
+
+  - category: PortScanner
+    tools:
+      - name: naabu
+        install: go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+        command: naabu -host {domain}
+      - name: asnmap
+        install: go install github.com/projectdiscovery/asnmap/cmd/asnmap@latest
+        command: asnmap -d {domain} -silent
+      - name: mapcidr
+        install: go install -v github.com/projectdiscovery/mapcidr/cmd/mapcidr@latest
+        command: mapcidr -h
+
+  - category: Crawling
+    tools:
+      - name: katana
+        install: go install github.com/projectdiscovery/katana/cmd/katana@latest
+        command: katana -u  {domain}
+      - name: waybackurls
+        install: go install github.com/tomnomnom/waybackurls@latest
+        command: waybackurls {domain}
+      - name: jsleak
+        install: go install github.com/channyein1337/jsleak@latest
+        command: jsleak -h
+      - name: gospider
+        install: go install github.com/jaeles-project/gospider@latest
+        command: gospider -q -s {domain}
+
+  - category: Notify
+    tools:
+      - name: notify
+        install: -v github.com/projectdiscovery/notify/cmd/notify@latest
+        config: notify -provider-config providers.yaml
+        command: ""
+
+  - category: DDoS
+    tools:
+      - name: MHDDoS
+        install:
+          - git clone https://github.com/MatrixTM/MHDDoS.git {path}/MHDDoS
+          - cd {path}/MHDDoS && pip install -r requirements.txt
+        command: cd {path}/MHDDoS &&  python start.py bypass  {domain} 5 101 socks5.txt 100 3600
+
+
+  - category: CMS
+    tools:
+      - name: wpscan
+        install: apt-get update && apt-get upgrade
+        command: wpscan --url {domain} -e ap --plugins-detection mixed --api-token YOUR_TOKEN
+  - category: Mail
+    tools:
+      - name: SpoofThatMail
+        install:
+          - git clone https://github.com/v4d1/SpoofThatMail.git {path}/SpoofThatMail
+        command: cd {path}/SpoofThatMail &&  sh SpoofThatMail.sh -d {domain}
+  - category: Mobile
+    tools:
+      - name: Mobile-Security-Framework-MobSF
+        install:
+          - git https://github.com/MobSF/Mobile-Security-Framework-MobSF.git {path}/Mobile-Security-Framework-MobSF
+          - cd {path}/Mobile-Security-Framework-MobSF && pip install -r requirements.txt
+        command: cd {path}/Mobile-Security-Framework-MobSF && run.bat {ip server:port}
+
+
+  - category: Brute-force
+    tools:
+      - name: gobuster
+        install: go install github.com/OJ/gobuster/v3@latest && go install
+        command: gobuster dns -d {domain} -t 50 -w common-names.txt
+
+  - category: Takeover
+    tools:
+      - name: subzy
+        install: go install -v github.com/LukaSikic/subzy@latest
+        command: subzy command --target {domain}
+
+  - category: DNS
+    tools:
+      - name: dnsx
+        install: go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+        command: subfinder -silent -d {domain} | dnsx -silent
+
+
+
+  - category: General
+    tools:
+      - name: crlfuzz
+        description:
+        install: go install github.com/dwisiswant0/crlfuzz/cmd/crlfuzz@latest
+        command: crlfuzz -u {domain}
+      - name: dontgo403
+        description:
+        install:
+          - git clone https://github.com/devploit/dontgo403 {path}/dontgo403
+          - cd {path}/dontgo403  && go get && go build
+        command: dontgo403 -u {domain}
+      - name: uncover
+        install: go install -v github.com/projectdiscovery/uncover/cmd/uncover@latest
+        command: uncover -h
+      - name: dalfox
+        install: go install github.com/hahwul/dalfox/v2@latest
+        command: dalfox  -h
+      - name: httpx
+        install: go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+        command: subfinder -d {domain} -silent| httpx -title -tech-detect -status-code
+      - name: kxss
+        install: go install -v github.com/Emoe/kxss@latest
+        command: kxss -h
+
+
+  - category: Custom  #Custom
+    tools:
+      - name: Eslam
+        description: eslamd asndkjas jkasndkjsan jasnfjk
+        install: go install github.com/projectdiscovery/katana/cmd/katana@latest
+        command: ls
